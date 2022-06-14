@@ -1,0 +1,22 @@
+stages:
+    - deploy
+
+deploy to servers:
+    stage: deploy
+    image: alpine
+    before_script:
+        # check if SSh-Agent is installed, if not install it
+        - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+        # Run SSH Agent 
+        - eval $(ssh-agent -s)
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo "$ID_RSA" | tr -d '\r' > ~/.ssh/id_rsa # ID_RSA is a PRIVATE key stored as variable in Gitlab. You can generate it using ssh-keygen on any machine
+        - chmod 400 ~/.ssh/id_rsa
+        - echo "$ID_RSA_PUB" > ~/.ssh/id_rsa.pub    # ID_RSA is a PUBLIC key stored as variable in Gitlab. You can generate it using ssh-keygen on any machine
+        - ssh-keyscan 172.17.125.5 >> ~/.ssh/known_hosts # Add the gitlab server public key finger print
+        - chmod 644 ~/.ssh/known_hosts
+
+    script:
+        - git clone http://172.17.125.5/a.foroughi/automatic-pcap.git
+        - scp -r -o StrictHostKeyChecking=no auto_pcap.sh root@172.17.93.68:/opt/script
