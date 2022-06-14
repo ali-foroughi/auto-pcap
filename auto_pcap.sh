@@ -6,9 +6,9 @@
 
 #### configure these values #### 
 
-HOST_NAME=srv15-mme-7
-S1MME_IP=172.17.80.168
-S11_IP=172.17.63.168
+HOST_NAME=
+S1MME_IP=
+S11_IP=
 S6A_IP=127.0.0.1
 
 
@@ -21,6 +21,17 @@ if [ $RESULT != 0 ]; then
     exit 1;
 fi
 }
+
+### Stop previous tcpdumps
+
+#kill $(ps aux | grep 'tcpdump' | awk '{print $2}')
+
+pkill tcpdump
+
+sleep 1 # wait for the proccesses to be killed
+
+#echo "current pids:"
+#ps aux | grep 'tcpdump'
 
 ### calculating time
 
